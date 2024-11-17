@@ -61,10 +61,18 @@ void assignGroupedRidersToDrivers(std::vector<Driver>& drivers, const std::unord
 }
 
 void outputResults(const std::vector<Driver>& drivers, const std::vector<Rider>& unassigned) {
+    std::cout << "=== Assignment Results ===\n";
+
+    int totalCapacityUsed = 0;
     for (const auto& driver : drivers) {
         std::cout << "Driver [" << driver.name << "]:\n";
-        for (const auto& rider : driver.riders) {
-            std::cout << "  Rider [" << rider << "]\n";
+        if (driver.riders.empty()) {
+            std::cout << "  No Riders Assigned\n";
+        } else {
+            for (const auto& rider : driver.riders) {
+                std::cout << "  Rider [" << rider << "]\n";
+            }
+            totalCapacityUsed += (driver.initialCapacity - driver.capacity);
         }
         std::cout << "\n";
     }
@@ -74,11 +82,21 @@ void outputResults(const std::vector<Driver>& drivers, const std::vector<Rider>&
         for (const auto& rider : unassigned) {
             std::cout << "  Rider [" << rider.name << "]\n";
         }
+        std::cout << "\n";
     }
+
+    std::cout << "=== Summary ===\n";
+    std::cout << "Total Capacity Used: " << totalCapacityUsed << "\n";
+    std::cout << "Total Riders Unassigned: " << unassigned.size() << "\n";
 }
 
-int main() {
-    std::ifstream inputFile("input.txt");
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <input_file>\n";
+        return 1;
+    }
+
+    std::ifstream inputFile(argv[1]);
 
     if (!inputFile.is_open()) {
         std::cerr << "Error: Unable to open input file.\n";
@@ -103,16 +121,23 @@ int main() {
         if (readingDrivers) {
             std::string name;
             int capacity;
-            ss >> name >> capacity;
-            drivers.push_back({name, capacity, capacity});
+            if (ss >> name >> capacity) {
+                drivers.push_back({name, capacity, capacity});
+            } else {
+                std::cerr << "Error: Invalid driver format in input file.\n";
+                return 1;
+            }
         } else {
             std::string name;
             int groupID = -1;
             ss >> name;
             if (ss >> groupID) {
                 riders.push_back(Rider{name, groupID});
-            } else {
+            } else if (!name.empty()) {
                 riders.push_back(Rider{name});
+            } else {
+                std::cerr << "Error: Invalid rider format in input file.\n";
+                return 1;
             }
         }
     }
