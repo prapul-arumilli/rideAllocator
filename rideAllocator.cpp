@@ -10,7 +10,12 @@ struct Driver {
     std::string name;
     int capacity;
     int initialCapacity;
+    int groupID = -1; // Added group ID for drivers
     std::vector<std::string> riders;
+
+    // Constructor
+    Driver(const std::string& driverName, int driverCapacity, int driverInitialCapacity, int driverGroupID = -1)
+        : name(driverName), capacity(driverCapacity), initialCapacity(driverInitialCapacity), groupID(driverGroupID) {}
 };
 
 struct Rider {
@@ -23,6 +28,7 @@ struct Rider {
 
 // Function to calculate the fill ratio of a driver
 double calculateFillRatio(const Driver& driver) {
+    if (driver.initialCapacity == 0) return 1.0; // Prevent division by zero
     return 1.0 - (double(driver.capacity) / driver.initialCapacity);
 }
 
@@ -35,17 +41,26 @@ std::unordered_map<int, std::vector<Rider>> groupRidersByGroupID(const std::vect
     return groupedRiders;
 }
 
-// Function to assign grouped riders to drivers
+// Function to assign grouped riders to drivers with a balanced distribution
 void assignGroupedRidersToDrivers(std::vector<Driver>& drivers, const std::unordered_map<int, std::vector<Rider>>& groupedRiders, std::vector<Rider>& unassigned) {
     for (const auto& group : groupedRiders) {
         const std::vector<Rider>& riders = group.second;
         int groupSize = riders.size();
 
-        // Find the driver with enough capacity and the lowest fill ratio
+        // Find the driver with enough capacity and balanced rider count
         auto it = std::min_element(drivers.begin(), drivers.end(), [groupSize](const Driver& a, const Driver& b) {
-            if (a.capacity < groupSize) return false;
-            if (b.capacity < groupSize) return true;
-            return calculateFillRatio(a) < calculateFillRatio(b);
+            if (a.capacity < groupSize) return false; // 'a' cannot accommodate
+            if (b.capacity < groupSize) return true;  // 'b' cannot accommodate
+
+            // Prefer the car with fewer total riders assigned (balance rider count)
+            if (a.riders.size() != b.riders.size()) {
+                return a.riders.size() < b.riders.size();
+            }
+
+            // If rider count is equal, compare fill ratio
+            double fillRatioA = calculateFillRatio(a);
+            double fillRatioB = calculateFillRatio(b);
+            return fillRatioA < fillRatioB;
         });
 
         if (it != drivers.end() && it->capacity >= groupSize) {
@@ -60,10 +75,36 @@ void assignGroupedRidersToDrivers(std::vector<Driver>& drivers, const std::unord
     }
 }
 
+// Assign ungrouped riders with a balanced distribution
+void assignUngroupedRiders(std::vector<Driver>& drivers, std::vector<Rider>& unassigned) {
+    std::vector<Rider> remainingRiders;
+
+    for (const auto& rider : unassigned) {
+        auto it = std::min_element(drivers.begin(), drivers.end(), [](const Driver& a, const Driver& b) {
+            if (a.capacity == 0) return false; // 'a' cannot accommodate
+            if (b.capacity == 0) return true;  // 'b' cannot accommodate
+
+            // Prefer the car with fewer total riders assigned
+            return a.riders.size() < b.riders.size();
+        });
+
+        if (it != drivers.end() && it->capacity > 0) {
+            it->riders.push_back(rider.name);
+            it->capacity--;
+        } else {
+            remainingRiders.push_back(rider);
+        }
+    }
+
+    unassigned = remainingRiders; // Update unassigned list
+}
+
 void outputResults(const std::vector<Driver>& drivers, const std::vector<Rider>& unassigned) {
     std::cout << "=== Assignment Results ===\n";
 
     int totalCapacityUsed = 0;
+    int totalEmptySeats = 0;
+
     for (const auto& driver : drivers) {
         std::cout << "Driver [" << driver.name << "]:\n";
         if (driver.riders.empty()) {
@@ -74,6 +115,7 @@ void outputResults(const std::vector<Driver>& drivers, const std::vector<Rider>&
             }
             totalCapacityUsed += (driver.initialCapacity - driver.capacity);
         }
+        totalEmptySeats += driver.capacity;
         std::cout << "\n";
     }
 
@@ -87,6 +129,7 @@ void outputResults(const std::vector<Driver>& drivers, const std::vector<Rider>&
 
     std::cout << "=== Summary ===\n";
     std::cout << "Total Capacity Used: " << totalCapacityUsed << "\n";
+    std::cout << "Total Empty Seats Remaining: " << totalEmptySeats << "\n";
     std::cout << "Total Riders Unassigned: " << unassigned.size() << "\n";
 }
 
@@ -120,9 +163,13 @@ int main(int argc, char* argv[]) {
         std::istringstream ss(line);
         if (readingDrivers) {
             std::string name;
-            int capacity;
+            int capacity, groupID = -1;
             if (ss >> name >> capacity) {
-                drivers.push_back({name, capacity, capacity});
+                if (ss >> groupID) {
+                    drivers.emplace_back(name, capacity, capacity, groupID);
+                } else {
+                    drivers.emplace_back(name, capacity, capacity);
+                }
             } else {
                 std::cerr << "Error: Invalid driver format in input file.\n";
                 return 1;
@@ -132,9 +179,9 @@ int main(int argc, char* argv[]) {
             int groupID = -1;
             ss >> name;
             if (ss >> groupID) {
-                riders.push_back(Rider{name, groupID});
+                riders.emplace_back(name, groupID);
             } else if (!name.empty()) {
-                riders.push_back(Rider{name});
+                riders.emplace_back(name);
             } else {
                 std::cerr << "Error: Invalid rider format in input file.\n";
                 return 1;
@@ -149,6 +196,9 @@ int main(int argc, char* argv[]) {
 
     // Assign grouped riders to drivers
     assignGroupedRidersToDrivers(drivers, groupedRiders, unassigned);
+
+    // Assign ungrouped riders
+    assignUngroupedRiders(drivers, unassigned);
 
     // Output results
     outputResults(drivers, unassigned);
