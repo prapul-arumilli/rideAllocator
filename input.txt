@@ -1,10 +1,10 @@
-Adit 4
-Shritan 3
-Srihari 7
+Adit 4 3
+Shritan 3 2
+Srihari 7 1
 
 Prapul 1
 Arnav 1
-Avery
+Avery 2
 Aiyanna 2
 Nithya 2
 Sakshi 3
