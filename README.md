@@ -1,107 +1,87 @@
-# Driver-Rider Assignment Tool
+# **DriveSync** 🚗✨  
+Efficient Ride-to-Driver Assignment System  
 
-## Overview
-This tool helps assign riders to drivers based on the available capacity of the drivers. Riders are grouped by their group ID (if any), and the tool tries to balance the distribution of riders across drivers to ensure maximum efficiency. The unassigned riders are also handled and shown at the end of the results.
+## **Overview**  
+DriveSync is a smart logistics tool designed to optimize rider-to-driver assignments for carpooling and ride-sharing. It ensures maximum seat utilization and minimizes unassigned riders through intelligent group prioritization and flexible handling of both grouped and ungrouped riders.  
 
-## Features
-- **Assign riders to drivers** based on available capacity.
-- **Group riders by their group ID** to ensure that riders in the same group are assigned to drivers together.
-- **Balance rider distribution** to prevent overloading any single driver.
-- **Output a summary** of driver assignments, including unassigned riders and available seats.
+This repository contains:  
+- A **Python implementation** for fast prototyping and testing.  
+- A **C++ implementation** optimized for performance and scalability.  
 
-## Requirements
-- C++ Compiler (e.g., `g++`)
-- Standard C++ Library
+## **Features**  
+- 🚦 **Group Prioritization**: Matches grouped riders with drivers to maintain group integrity.  
+- 🧠 **Dynamic Assignment**: Allocates ungrouped riders based on driver availability and capacity.  
+- 📊 **Efficiency Metrics**: Outputs statistics on total capacity used, empty seats, and unassigned riders.  
 
-## Usage
+## **How It Works**  
+1. **Input**:  
+   - A text file specifying drivers and riders, with optional group IDs.  
+   - Example:  
+     ```txt
+     # Drivers
+     Driver1 4 1
+     Driver2 3
+     
+     # Riders
+     RiderA 1
+     RiderB
+     RiderC 1
+     RiderD
+     ```  
 
-1. **Input File Format**:
-   The input should be in a text file, structured as follows:
-   
-   - **Driver Section**:
-     Each driver is defined by their name, capacity, and optional group ID. This section should be followed by a blank line.
-     - Example:
-       ```
-       Driver1 4
-       Driver2 3 1
-       Driver3 5
-       ```
-     In this example:
-     - `Driver1` has a capacity of 4 and no group ID.
-     - `Driver2` has a capacity of 3 and belongs to group ID `1`.
-     - `Driver3` has a capacity of 5 and no group ID.
+2. **Process**:  
+   - Assigns grouped riders to matching drivers based on capacity.  
+   - Allocates ungrouped riders to minimize unassigned riders and maximize seat utilization.  
 
-   - **Rider Section**:
-     Each rider is defined by their name and optional group ID. Riders without a group ID are treated as ungrouped.
-     - Example:
-       ```
-       Rider1 1
-       Rider2
-       Rider3 2
-       Rider4 1
-       ```
-     In this example:
-     - `Rider1` belongs to group `1`.
-     - `Rider2` is ungrouped.
-     - `Rider3` belongs to group `2`.
-     - `Rider4` belongs to group `1`.
+3. **Output**:  
+   - Displays driver assignments, unassigned riders, and summary statistics.  
 
-2. **Running the Program**:
-   Compile the program using a C++ compiler. For example:
+## **File Structure**  
+- `DriveSync.py`  
+  - Python implementation of the project.  
+  - Easy to modify and extend for testing or educational purposes.  
+
+- `DriveSync.cpp`  
+  - High-performance C++ implementation for handling large-scale datasets.  
+  - Optimized for speed and memory usage.  
+
+## **How to Run**  
+
+### **Python Version**  
+1. Ensure Python 3 is installed.  
+2. Run the script with an input file:  
    ```bash
-   g++ driver_rider_assignment.cpp -o driver_rider_assignment
-   ```
+   python3 DriveSync.py input.txt
+   ```  
 
-   Run the program with the input file as a command-line argument:
+### **C++ Version**  
+1. Compile the program using a C++ compiler (e.g., `g++`):  
    ```bash
-   ./driver_rider_assignment input.txt
-   ```
+   g++ -o DriveSync DriveSync.cpp
+   ```  
+2. Run the compiled executable with an input file:  
+   ```bash
+   ./DriveSync input.txt
+   ```  
 
-   Replace `input.txt` with the path to your input file.
+## **Example Output**  
+```txt
+Driver1:
+  RiderA
+  RiderC
 
-3. **Output**:
-   The program will output the assignment results to the console, showing:
-   - The drivers with their assigned riders.
-   - Unassigned riders (if any).
-   - A summary showing the total capacity used, the empty seats remaining, and the number of unassigned riders.
+Driver2:
+  RiderB
+  RiderD
 
-   Example output:
-   ```
-   === Assignment Results ===
-   Driver [Driver1]:
-     Rider [Rider1]
-     Rider [Rider2]
+Summary:
+  Total Capacity Used: 4
+  Total Empty Seats Remaining: 3
+  Total Riders Unassigned: 0
+```  
 
-   Driver [Driver2]:
-     Rider [Rider3]
+## **Contributing**  
+Contributions are welcome! Feel free to open issues or submit pull requests to improve functionality or documentation.  
 
-   Driver [Driver3]:
-     Rider [Rider4]
-
-   Driver [NULL]:
-     Rider [Rider5]
-
-   === Summary ===
-   Total Capacity Used: 8
-   Total Empty Seats Remaining: 7
-   Total Riders Unassigned: 1
-   ```
-
-   In this example:
-   - `Driver1` is assigned `Rider1` and `Rider2`.
-   - `Driver2` is assigned `Rider3`.
-   - `Driver3` is assigned `Rider4`.
-   - `Rider5` is unassigned and appears under the `NULL` driver.
-
-## Customization
-You can modify the program to:
-- Handle additional constraints or specific logic for assigning riders to drivers.
-- Customize the output format if you need to integrate this tool with other software.
-
-## Troubleshooting
-- Ensure the input file is formatted correctly (with drivers and riders separated by a blank line).
-- The program handles both grouped and ungrouped riders. If riders are unassigned, they will be listed under the `NULL` driver.
-- If the file format is incorrect or missing data, the program will output an error message.
-
-## License
-This project is open-source and free to use. Feel free to modify it according to your needs.
+## **License**  
+This project is licensed under the MIT License.
