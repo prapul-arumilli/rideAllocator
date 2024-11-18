@@ -27,32 +27,42 @@ def group_riders_by_group_id(riders):
     return grouped_riders
 
 def assign_grouped_riders_to_drivers(drivers, grouped_riders, unassigned):
-    # Assign riders with specific group IDs to drivers with the same group ID
+    # First assign riders with specific group IDs to drivers with the same group ID
     for group_id, riders in grouped_riders.items():
         group_size = len(riders)
 
+        # Handle ungrouped riders later in the `assign_ungrouped_riders` function
         if group_id is None:
-            continue  # Skip ungrouped riders (they are handled later)
+            unassigned.extend(riders)
+            continue
 
-        # Find the driver with the same group ID and enough capacity
+        # Try to find a driver with the same group ID and enough capacity
         driver = None
         for d in drivers:
             if d.group_id == group_id and d.capacity >= group_size:
                 driver = d
                 break
-        
+
+        # If no driver with matching group ID, find the first available driver with enough capacity
+        if not driver:
+            for d in drivers:
+                if d.capacity >= group_size:
+                    driver = d
+                    break
+
         if driver:
             # Assign riders to this driver
             for rider in riders:
                 driver.riders.append(rider.name)
             driver.capacity -= group_size
         else:
-            # If no driver with the same group ID and enough capacity, add riders to unassigned
+            # If no driver has enough capacity, add riders to unassigned
             unassigned.extend(riders)
 
 def assign_ungrouped_riders(drivers, unassigned):
     remaining_riders = []
     for rider in unassigned:
+        # Try to assign ungrouped riders to any available driver
         driver = min(
             (d for d in drivers if d.capacity > 0),
             key=lambda d: len(d.riders) if d.capacity > 0 else float('inf'),
@@ -131,7 +141,7 @@ def main():
             # Assign grouped riders to drivers based on matching group ID
             assign_grouped_riders_to_drivers(drivers, grouped_riders, unassigned)
 
-            # Assign ungrouped riders
+            # Assign ungrouped riders (those with None group ID)
             unassigned = assign_ungrouped_riders(drivers, unassigned)
 
             # Output results

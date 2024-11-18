@@ -1,13 +1,13 @@
-Adit 4 3
-Shritan 3 2
+Adit 4 2
+Shritan 4 3
 Srihari 7 1
 
 Prapul 1
 Arnav 1
-Avery 2
-Aiyanna 2
-Nithya 2
-Sakshi 3
-Yifei 3
-Will 4
-Jason 4
+Avery 
+Aiyanna
+Nithya
+Sakshi 2
+Yifei 2
+Will 3
+Jason
