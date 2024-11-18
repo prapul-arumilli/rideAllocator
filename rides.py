@@ -78,11 +78,9 @@ def assign_ungrouped_riders(drivers, unassigned):
     return remaining_riders
 
 def output_results(drivers, unassigned):
-    print("=== Assignment Results ===")
-
     total_capacity_used = 0
     total_empty_seats = 0
-
+    print("\n")
     for driver in drivers:
         print(f"{driver.name}:")
         if not driver.riders:
@@ -100,10 +98,10 @@ def output_results(drivers, unassigned):
             print(f"  {rider.name}")
         print()
 
-    print("=== Summary ===")
-    print(f"Total Capacity Used: {total_capacity_used}")
-    print(f"Total Empty Seats Remaining: {total_empty_seats}")
-    print(f"Total Riders Unassigned: {len(unassigned)}")
+    print("Summary:")
+    print(f"  Total Capacity Used: {total_capacity_used}")
+    print(f"  Total Empty Seats Remaining: {total_empty_seats}")
+    print(f"  Total Riders Unassigned: {len(unassigned)}\n")
 
 def main():
     if len(sys.argv) != 2:
